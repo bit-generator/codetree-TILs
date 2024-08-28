@@ -23,7 +23,7 @@ int Q, num, n, m, v, u, w, id, revenue, dest, s, news, changed;
 vector<pair<int, int>> graph[2000];
 priority_queue<pair<int, int>> pq;
 int dist[2000];
-bool ids[30001];
+int ids[2][30001];
 set<Product> products1, products2;
 
 void dijkstra(int x) {
@@ -69,22 +69,20 @@ int main() {
 		if (num == 200) {
 			cin >> id >> revenue >> dest;
 			products.insert({ revenue - dist[dest], id, revenue, dest });
-			ids[id] = true;
+			ids[0][id] = revenue;
+			ids[1][id] = dest;
 		}
 		else if (num == 300) {
 			cin >> id;
-			ids[id] = false;
+			int revenue = ids[0][id];
+			int dest = ids[1][id];
+			products.erase({ revenue - dist[dest], id, revenue, dest });
 		}
 		else if (num == 400) {
 			bool found = false;
 			for (auto it = products.begin(); it != products.end(); ) {
 				auto product = *it;
-
 				if (product.profit < 0) break;
-				if (!ids[product.id]) {
-					it = products.erase(it);
-					continue;
-				}
 
 				cout << product.id << '\n';
 				products.erase(it);
