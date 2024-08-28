@@ -2,7 +2,7 @@
 #include <queue>
 #include <vector>
 #include <utility>
-#include <set>
+#include <map>
 #define INF     21e8
 using namespace std;
 
@@ -24,7 +24,7 @@ vector<pair<int, int>> graph[2000];
 priority_queue<pair<int, int>> pq;
 int dist[2000];
 int ids[2][30001];
-set<Product> products1, products2;
+map<Product, bool> maps1, maps2;
 
 void dijkstra(int x) {
 	fill(dist, dist + 2000, INF);
@@ -65,27 +65,26 @@ int main() {
 
 	while (--Q) {
 		cin >> num;
-		set<Product>& products = changed % 2 ? products2 : products1;
+		map<Product, bool>& maps = changed % 2 ? maps2 : maps1;
 		if (num == 200) {
 			cin >> id >> revenue >> dest;
-			products.insert({ revenue - dist[dest], id, revenue, dest });
 			ids[0][id] = revenue;
 			ids[1][id] = dest;
+			maps[{revenue - dist[dest], id, revenue, dest}] = true;
 		}
 		else if (num == 300) {
 			cin >> id;
-			int revenue = ids[0][id];
-			int dest = ids[1][id];
-			products.erase({ revenue - dist[dest], id, revenue, dest });
+			maps[{ids[0][id] - dist[ids[1][id]], id, ids[0][id], ids[1][id]}] = false;
 		}
 		else if (num == 400) {
 			bool found = false;
-			for (auto it = products.begin(); it != products.end(); ) {
-				auto product = *it;
+			for (auto it = maps.begin(); it != maps.end(); it++) {
+				auto product = it->first;
 				if (product.profit < 0) break;
+				if (!(it->second)) continue;
 
 				cout << product.id << '\n';
-				products.erase(it);
+				it->second = false;
 				found = true;
 				break;
 			}
@@ -96,13 +95,17 @@ int main() {
 			cin >> news;
 			if (s != news) {
 				dijkstra(news);
-				set<Product>& nproducts = changed % 2 ? products1 : products2;
+				map<Product, bool>& nmaps = changed % 2 ? maps1 : maps2;
 
-				for (auto it = products.begin(); it != products.end(); ) {
-					nproducts.insert({ it->revenue - dist[it->dest], it->id, it->revenue, it->dest });
-					it = products.erase(it);
+				for (auto it = maps.begin(); it != maps.end(); it++) {
+					if (it->second) {
+						auto tmp = it->first;
+						tmp.profit = tmp.revenue - dist[tmp.dest];
+						nmaps[tmp] = true;
+					}
 				}
 
+				maps.clear();
 				s = news;
 				changed++;
 			}
