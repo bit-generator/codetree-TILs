@@ -2,7 +2,6 @@
 #include <queue>
 #include <vector>
 #include <utility>
-#include <map>
 #define INF     21e8
 using namespace std;
 
@@ -12,10 +11,10 @@ struct Product {
 
 	bool operator<(const Product& a) const {
 		if (this->profit == a.profit) {
-			return this->id < a.id;
+			return this->id > a.id;
 		}
 
-		return this->profit > a.profit;
+		return this->profit < a.profit;
 	}
 };
 
@@ -23,8 +22,8 @@ int Q, num, n, m, v, u, w, id, revenue, dest, s, news, changed;
 vector<pair<int, int>> graph[2000];
 priority_queue<pair<int, int>> pq;
 int dist[2000];
-int ids[2][30001];
-map<Product, bool> maps1, maps2;
+bool enable[30001];
+priority_queue<Product> trip1, trip2;
 
 void dijkstra(int x) {
 	fill(dist, dist + 2000, INF);
@@ -65,47 +64,45 @@ int main() {
 
 	while (--Q) {
 		cin >> num;
-		map<Product, bool>& maps = changed % 2 ? maps2 : maps1;
+		priority_queue<Product>& trip = changed % 2 ? trip2 : trip1;
 		if (num == 200) {
 			cin >> id >> revenue >> dest;
-			ids[0][id] = revenue;
-			ids[1][id] = dest;
-			maps[{revenue - dist[dest], id, revenue, dest}] = true;
+			trip.push({ revenue - dist[dest], id, revenue, dest });
+			enable[id] = true;
 		}
 		else if (num == 300) {
 			cin >> id;
-			maps[{ids[0][id] - dist[ids[1][id]], id, ids[0][id], ids[1][id]}] = false;
+			enable[id] = false;
 		}
 		else if (num == 400) {
 			bool found = false;
-			for (auto it = maps.begin(); it != maps.end(); it++) {
-				auto product = it->first;
-				if (product.profit < 0) break;
-				if (!(it->second)) continue;
 
-				cout << product.id << '\n';
-				it->second = false;
-				found = true;
-				break;
+			while (!trip.empty() && !enable[trip.top().id]) {
+				trip.pop();
 			}
 
-			if (!found) cout << -1 << '\n';
+			if (trip.empty() || trip.top().profit < 0) {
+				cout << -1 << '\n';
+				continue;
+			}
+
+			cout << trip.top().id << '\n';
+			trip.pop();
 		}
 		else {
 			cin >> news;
 			if (s != news) {
 				dijkstra(news);
-				map<Product, bool>& nmaps = changed % 2 ? maps1 : maps2;
+				priority_queue<Product>& ntrip = changed % 2 ? trip1 : trip2;
 
-				for (auto it = maps.begin(); it != maps.end(); it++) {
-					if (it->second) {
-						auto tmp = it->first;
-						tmp.profit = tmp.revenue - dist[tmp.dest];
-						nmaps[tmp] = true;
-					}
+				while (!trip.empty()) {
+					auto tmp = trip.top();
+					trip.pop();
+					tmp.profit = tmp.revenue - dist[tmp.dest];
+					ntrip.push(tmp);
+					
 				}
 
-				maps.clear();
 				s = news;
 				changed++;
 			}
