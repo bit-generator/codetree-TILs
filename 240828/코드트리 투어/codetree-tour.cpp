@@ -4,6 +4,7 @@
 #include <utility>
 #define INF     21e8
 using namespace std;
+using Pair = pair<int, int>;
 
 struct Product {
 	int profit;
@@ -19,8 +20,8 @@ struct Product {
 };
 
 int Q, num, n, m, v, u, w, id, revenue, dest, s, news, changed;
-vector<pair<int, int>> graph[2000];
-priority_queue<pair<int, int>> pq;
+vector<Pair> graph[2000];
+priority_queue<Pair, vector<Pair>, greater<>> pq;
 int dist[2000];
 bool enable[30001];
 priority_queue<Product> trip1, trip2;
