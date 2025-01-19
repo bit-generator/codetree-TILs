@@ -114,7 +114,7 @@ int main() {
                 continue;
             }
 
-			update(0, 1, MAX_VAL, price, -1);
+			update(0, 1, MAX_VAL, menu[name], -1);
             int val = menu[name];
             menu_invert.erase(menu[name]);
             menu.erase(name);
