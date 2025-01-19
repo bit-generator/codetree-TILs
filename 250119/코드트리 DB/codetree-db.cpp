@@ -21,7 +21,8 @@ string cmd, name;
 
 void update(int node, int s, int e, int idx, int v) {
     if (s == e) {
-        segtree[node].sum = idx;
+        if(v == 1) segtree[node].sum = idx;
+        else segtree[node].sum = 0;
         segtree[node].cnt += v;
         return;
     }
