@@ -90,7 +90,7 @@ int main() {
             int w_max;
             cin >> w_max;
 
-            int ret = 0;
+            long long ret = 0;
             int idx = 0;
             while (parent[idx] != idx) idx = beltnext[idx];
 
